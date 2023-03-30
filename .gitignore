@@ -3,3 +3,4 @@ venv/
 *.pyc
 venvdash/
 cicd/
+__pycache__

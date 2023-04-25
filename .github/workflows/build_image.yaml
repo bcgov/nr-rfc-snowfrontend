@@ -1,4 +1,4 @@
-name: Build Streamlit Image
+name: PR Open
 
 # used on push for testing / development
 on:
@@ -20,7 +20,6 @@ on:
       - scripts/**
       - .flake8
       - COMPLIANCE.yaml
-      - requirements-dev.txt
 
 jobs:
   # This workflow contains a single job called "build"
@@ -64,3 +63,41 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
           ghcr.io/${{ github.repository_owner }}/streamlit_frontend:${{ steps.calculateImageTag.outputs.DATESTAMP }}
+  
+  # This workflow contains a single job called "build"
+  DeployJob:
+    defaults:
+      run:
+        shell: bash
+    name: 'Deploy Streamlit Image'
+    runs-on: ubuntu-22.04
+    environment: dev
+    steps:
+    - name: Log in and set context
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ secrets.OC_SERVER }}
+        openshift_token: ${{ secrets.OC_TOKEN }}
+        # openshift_username: ${{ env.TEST_USER }}
+        # openshift_password: ${{ secrets.OPENSHIFT_PASSWORD }}
+        # certificate_authority_data: ${{ secrets.CA_DATA }}
+        namespace: ${{ secrets.OC_NAMESPACE }}
+
+    - name: 'Deploy'
+      uses: 'deliverybot/helm@v1'
+      with:
+        release: 'snowpack-frontend'
+        namespace: ${{ vars.OC_NAMESPACE }}
+        chart: 'cicd/snowpack-frontend'
+        token: '${{ github.token }}'
+        values: |
+          ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
+          ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
+          ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
+          ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
+      env:
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+
+       
+
+

@@ -47,7 +47,8 @@ jobs:
         DATESTAMP=$(date +%Y%m%d-%H%M)
         echo datestamp is $DATESTAMP
         echo ::set-output name=DATESTAMP::${DATESTAMP}
-        ls -la
+        echo event number: ${{ github.event.number }}
+        #echo "IMAGE_TAG=${DATESTAMP}" >> "$DATESTAMP"
 
     - name: Log in to GitHub Docker Registry
       uses: docker/login-action@v1
@@ -69,9 +70,11 @@ jobs:
     defaults:
       run:
         shell: bash
+    needs: buildjob
     name: 'Deploy Streamlit Image'
     runs-on: ubuntu-22.04
     environment: dev
+
     steps:
     - name: Log in and set context
       uses: redhat-actions/oc-login@v1

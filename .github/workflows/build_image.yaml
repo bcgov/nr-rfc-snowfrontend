@@ -5,7 +5,7 @@ on:
   push:
     branches: ['master', 'main', 'feat/5-deploy-frontend']
 
-on:
+# on:
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
     branches: ['main']

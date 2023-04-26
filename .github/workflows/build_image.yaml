@@ -52,6 +52,7 @@ jobs:
       run:
         shell: bash
     needs: calculateImageTag
+    runs-on: ubuntu-22.04
     steps:
     - name: GET Image Tag
       id: getimagetag

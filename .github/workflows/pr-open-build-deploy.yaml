@@ -163,20 +163,20 @@ jobs:
         --set image.promote=bcgov/streamlit_frontend:${{ env.IMAGE_TAG }} \
         --set app.zone=${{ env.ZONE }}
 
-      - name: Get Route URL
-        id: getRouteUrl
-        shell: bash
-        run: |
-          # retrieve the route url
-          # ---------------------------------------------------------
-          app_name=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.name')
-          app_comp=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.component')
+    - name: Get Route URL
+      id: getRouteUrl
+      shell: bash
+      run: |
+        # retrieve the route url
+        # ---------------------------------------------------------
+        app_name=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.name')
+        app_comp=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.component')
 
-          oc_route_name=$app_name-${{ env.ZONE }}-$app_comp
-          echo "OC_ROUTE=$oc_route_name" >> $GITHUB_ENV
+        oc_route_name=$app_name-${{ env.ZONE }}-$app_comp
+        echo "OC_ROUTE=$oc_route_name" >> $GITHUB_ENV
 
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            Route to deployed app is: ${{ env.OC_ROUTE }}
+    - name: Comment PR
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        message: |
+          Route to deployed app is: ${{ env.OC_ROUTE }}

@@ -120,6 +120,7 @@ jobs:
       with:
       #   fetch-depth: 0
       #  ref: ${{ github.event.pull_request.head.sha }}
+      # TODO: fix once complete
         ref: ${{ github.event.push.head.sha }}
 
     - name: Log in and set context

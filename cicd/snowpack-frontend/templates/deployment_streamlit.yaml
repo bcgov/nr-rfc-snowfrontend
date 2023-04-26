@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}
+  labels:
+    app: {{ .Values.app.name }}-{{ .Values.app.zone }}
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}-{{ .Values.app.zone }}
+  strategy:
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}-{{ .Values.app.zone }}
+        deployment: {{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: {{ .Values.image.image_registry }}/{{ .Release.Namespace }}/{{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}:{{ .Values.image.image_tag }}
+          imagePullPolicy: Always
+          env:
+            - name: OBJ_STORE_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  key: obj_store_bucket
+            - name: OBJ_STORE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  key: obj_store_secret
+            - name: OBJ_STORE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  key: obj_store_user
+            - name: OBJ_STORE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  key: obj_store_host
+          ports:
+            - containerPort: 8501
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+              scheme: HTTP
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+              scheme: HTTP
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 1
+              memory: 1.5Gi
+            requests:
+              cpu: 100m
+              memory: 400Mi

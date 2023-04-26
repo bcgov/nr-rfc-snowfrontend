@@ -24,17 +24,17 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   # working on testing this: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idoutputs
-  calculateImageTags:
+  CalculateImageTags:
     defaults:
       run:
         shell: bash
     name: calculateImageTag
     runs-on: ubuntu-22.04
     outputs:
-      imagetag: ${{ steps.calculateImageTagStep.outputs.IMAGE_TAG}}
+      imagetag: ${{ steps.CalculateImageTagstep.outputs.IMAGE_TAG}}
     steps:
     - name: Calculate Image Tag
-      id: calculateImageTagStep
+      id: CalculateImageTagstep
       shell: bash
       run: |
         DATESTAMP=$(date +%Y%m%d-%H%M)
@@ -49,22 +49,22 @@ jobs:
     defaults:
       run:
         shell: bash
-    needs: calculateImageTags
+    needs: CalculateImageTags
     runs-on: ubuntu-22.04
     steps:
     - name: GET Image Tag
       id: getImageTag
       shell: bash
       env:
-        IMAGE_TAG: ${{ needs.calculateImageTags.outputs.imagetag }}
+        IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
       run: |
         echo image tag is: $IMAGE_TAG
 
-  buildContainerImage:
+  BuildContainerImage:
     defaults:
       run:
         shell: bash
-    needs: calculateImageTags
+    needs: CalculateImageTags
     name: 'Build Streamlit Container Image'
     runs-on: ubuntu-22.04
     env:
@@ -77,10 +77,10 @@ jobs:
       # with:
       #   fetch-depth: 0
     - name: Verify tag
-      id: calculateImageTagStep
+      id: CalculateImageTagstep
       shell: bash
       env:
-        IMAGE_TAG: ${{ needs.calculateImageTags.outputs.imagetag }}
+        IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
       run: |
         echo image tag is $IMAGE_TAG
 
@@ -94,7 +94,7 @@ jobs:
     # - name: Build and Push Client Docker Image
     #   uses: docker/build-push-action@v2
     #   env:
-    #     IMAGE_TAG: ${{ needs.calculateImageTags.outputs.imagetag }}
+    #     IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
 
     #   with:
     #     push: true # Will only build if this is not here
@@ -107,7 +107,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    needs: [calculateImageTags, buildjob]
+    needs: [CalculateImageTags, BuildContainerImage]
     name: 'Deploy Streamlit Image'
     runs-on: ubuntu-22.04
     environment: dev
@@ -136,7 +136,7 @@ jobs:
     - name: 'Deploy'
       uses: 'deliverybot/helm@v1'
       env:
-        IMAGE_TAG: ${{ needs.calculateImageTags.outputs.imagetag }}
+        IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
         KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
         ZONE: ${{ env.ZONE }}
       with:

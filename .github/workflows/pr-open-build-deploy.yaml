@@ -172,8 +172,9 @@ jobs:
         app_name=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.name')
         app_comp=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.component')
 
-        oc_route_name=$app_name-${{ env.ZONE }}-$app_comp
-        echo "OC_ROUTE=$oc_route_name" >> $GITHUB_ENV
+        route_name=$app_name-${{ env.ZONE }}-$app_comp
+        route_path=$(oc get route $route_name -o json | jq .spec.host | tr -d '"' )
+        echo "OC_ROUTE=https://$route_path" >> $GITHUB_ENV
 
     - name: Comment PR
       uses: thollander/actions-comment-pull-request@v2

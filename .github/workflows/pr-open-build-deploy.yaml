@@ -90,7 +90,7 @@ jobs:
         echo event number is: ${{ github.event.number }}
 
     - name: Log in to GitHub Docker Registry
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner  }}
@@ -163,24 +163,20 @@ jobs:
         --set image.promote=bcgov/streamlit_frontend:${{ env.IMAGE_TAG }} \
         --set app.zone=${{ env.ZONE }}
 
-    # - name: 'Deploy'
-    #   uses: 'deliverybot/helm@v1'
-    #   env:
-    #     IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
-    #     KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
-    #     ZONE: ${{ env.ZONE }}
-    #   with:
-    #     release: 'snowpack-frontend'
-    #     namespace: ${{ vars.OC_NAMESPACE }}
-    #     chart: 'cicd/snowpack-frontend'
-    #     token: '${{ github.token }}'
-        
-    #     # todo: once working inject the zone / prnumber in
-    #     values: |
-    #       ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
-    #       ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
-    #       ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
-    #       ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
-    #       image.image_tag: ${{ env.IMAGE_TAG }}
-    #       image.promote: bcgov/streamlit_frontend:${{ env.IMAGE_TAG }}
-    #       app.zone: ${{ env.ZONE }}
+      - name: Get Route URL
+        id: getRouteUrl
+        shell: bash
+        run: |
+          # retrieve the route url
+          # ---------------------------------------------------------
+          app_name=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.name')
+          app_comp=$(cat ./cicd/snowpack-frontend/values.yaml | yq e '.app.component')
+
+          oc_route_name=$app_name-${{ env.ZONE }}-$app_comp
+          echo "OC_ROUTE=$oc_route_name" >> $GITHUB_ENV
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            Route to deployed app is: ${{ env.OC_ROUTE }}

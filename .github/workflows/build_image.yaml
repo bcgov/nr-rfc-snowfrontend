@@ -20,6 +20,8 @@ on:
       - scripts/**
       - .flake8
       - COMPLIANCE.yaml
+  workflow_dispatch:
+
 
 jobs:
   # This workflow contains a single job called "build"
@@ -115,8 +117,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       id: checkout
-      # with:
-      #   fetch-depth: 0
+      with:
+        fetch-depth: 0
 
     - name: Log in and set context
       uses: redhat-actions/oc-login@v1

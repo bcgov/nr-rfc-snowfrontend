@@ -51,7 +51,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    needs: calculateImageTag
+    needs: testJob1
     runs-on: ubuntu-22.04
     steps:
     - name: GET Image Tag
@@ -66,7 +66,7 @@ jobs:
   testJob3:
     name: 'test'
     runs-on: ubuntu-22.04
-    needs: [calculateImageTag, testJob2]
+    needs: [testJob1, testJob2]
     steps:
     - name: Get Image Tag
       id: getImageTagMultiNeeds

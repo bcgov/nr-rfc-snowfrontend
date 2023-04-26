@@ -27,22 +27,22 @@ spec:
             - name: OBJ_STORE_BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  name: {{ .Values.app.name }}-{{ .Values.app.zone }}-{{ .Values.app.component }}
                   key: obj_store_bucket
             - name: OBJ_STORE_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  name: {{ .Values.app.name }}-{{ .Values.app.zone }}-{{ .Values.app.component }}
                   key: obj_store_secret
             - name: OBJ_STORE_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  name: {{ .Values.app.name }}-{{ .Values.app.zone }}-{{ .Values.app.component }}
                   key: obj_store_user
             - name: OBJ_STORE_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.app.name }}-{{ .Values.app.name }}-{{ .Values.app.component }}
+                  name: {{ .Values.app.name }}-{{ .Values.app.zone }}-{{ .Values.app.component }}
                   key: obj_store_host
           ports:
             - containerPort: 8501

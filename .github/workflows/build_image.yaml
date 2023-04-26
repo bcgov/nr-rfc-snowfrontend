@@ -1,11 +1,11 @@
 name: PR Open
 
-# used on push for testing / development
 on:
-  push:
-    branches: ['master', 'main', 'feat/5-deploy-frontend']
+  # used on push for testing / development
+  # ---------------------------------------------------------
+  # push:
+  #   branches: ['master', 'main', 'feat/5-deploy-frontend']
 
-# on:
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
     branches: ['main']
@@ -24,8 +24,8 @@ on:
 
 
 jobs:
-  # This workflow contains a single job called "build"
-  # working on testing this: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idoutputs
+  # calculate the image tag / used to tag image and then for the
+  # deployment 
   CalculateImageTags:
     defaults:
       run:
@@ -42,12 +42,13 @@ jobs:
         DATESTAMP=$(date +%Y%m%d-%H%M)
         echo datestamp is $DATESTAMP
         echo event number: ${{ github.event.number }}
-        TEMP_IMAGE_TAG=20230425-2337
-        echo hard coding image tag as $TEMP_IMAGE_TAG
-        #echo "IMAGE_TAG=${DATESTAMP}" >> "$GITHUB_OUTPUT"
-        echo "IMAGE_TAG=${TEMP_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-  testGetImageTag:
-  # testing passing params between jobs
+        # TEMP_IMAGE_TAG=20230425-2337
+        # echo hard coding image tag as $TEMP_IMAGE_TAG
+        # echo "IMAGE_TAG=${TEMP_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+        echo "IMAGE_TAG=${DATESTAMP}" >> "$GITHUB_OUTPUT"
+
+  TestGetImageTag:
+  # test output of image tag, and verify its been calculated correctly
     defaults:
       run:
         shell: bash
@@ -61,6 +62,7 @@ jobs:
         IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
       run: |
         echo image tag is: $IMAGE_TAG
+        echo event number is: ${{ github.event.number }}
 
   BuildContainerImage:
     defaults:
@@ -85,24 +87,25 @@ jobs:
         IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
       run: |
         echo image tag is $IMAGE_TAG ${{ env.IMAGE_TAG }}
+        echo event number is: ${{ github.event.number }}
 
-    # - name: Log in to GitHub Docker Registry
-    #   uses: docker/login-action@v1
-    #   with:
-    #     registry: ghcr.io
-    #     username: ${{ github.repository_owner  }}
-    #     password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Log in to GitHub Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner  }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-    # - name: Build and Push Client Docker Image
-    #   uses: docker/build-push-action@v2
-    #   env:
-    #     IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
+    - name: Build and Push Client Docker Image
+      uses: docker/build-push-action@v2
+      env:
+        IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
 
-    #   with:
-    #     push: true # Will only build if this is not here
-    #     tags: |
-    #       ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
-    #       ghcr.io/${{ github.repository_owner }}/streamlit_frontend:$IMAGE_TAG
+      with:
+        push: true # Will only build if this is not here
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
+          ghcr.io/${{ github.repository_owner }}/streamlit_frontend:${{ env.IMAGE_TAG }}
   
   # This workflow contains a single job called "build"
   DeployJob:
@@ -119,9 +122,9 @@ jobs:
       id: checkout
       with:
       #   fetch-depth: 0
-      #  ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ github.event.pull_request.head.sha }}
       # TODO: fix once complete
-        ref: ${{ github.event.push.head.sha }}
+      #  ref: ${{ github.event.push.head.sha }}
 
     - name: Log in and set context
       uses: redhat-actions/oc-login@v1
@@ -148,7 +151,6 @@ jobs:
       shell: bash
       env:
         IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
-
       run: |
         cd cicd
         ls -la

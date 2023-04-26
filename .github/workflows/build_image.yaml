@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: GET Image Tag
-      id: getimagetag
+      id: getImageTag
       shell: bash
       env:
         IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
@@ -69,12 +69,12 @@ jobs:
     needs: [calculateImageTag, testJob2]
     steps:
     - name: Get Image Tag
-      id: get image tag
+      id: getImageTagMultiNeeds
       shell: bash
       env:
         IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
       run: |
-        echo The image tag is: 
+        echo The image tag is: $IMAGE_TAG
 
 
 

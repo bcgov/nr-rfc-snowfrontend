@@ -30,22 +30,20 @@ jobs:
       run:
         shell: bash
 
-    name: 'test'
+    name: calculateImageTag
     runs-on: ubuntu-22.04
     outputs:
-      imagetag: ${{ steps.calculateImageTag.outputs.IMAGE_TAG}}
+      imagetag: ${{ steps.calculateImageTagStep.outputs.IMAGE_TAG}}
     steps:
     - name: Calculate Image Tag
-      id: calculateImageTag
+      id: calculateImageTagStep
       shell: bash
       run: |
         DATESTAMP=$(date +%Y%m%d-%H%M)
         echo datestamp is $DATESTAMP
-        echo ::set-output name=DATESTAMP::${DATESTAMP}
+        #echo ::set-output name=DATESTAMP::${DATESTAMP}
         echo event number: ${{ github.event.number }}
-        echo "IMAGE_TAG=${DATESTAMP}" >> "$DATESTAMP"
-
-
+        echo "IMAGE_TAG=${DATESTAMP}" >> "$GITHUB_OUTPUT"
   testJob2:
   # testing passing params between jobs
     defaults:
@@ -58,7 +56,7 @@ jobs:
       id: getImageTag
       shell: bash
       env:
-        IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
+        IMAGE_TAG: ${{ needs.testJob1.outputs.imagetag }}
       run: |
         echo image tag is: $IMAGE_TAG
 
@@ -68,11 +66,11 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [testJob1, testJob2]
     steps:
-    - name: Get Image Tag
+    - name: Get Image Tag Multi Needs
       id: getImageTagMultiNeeds
       shell: bash
       env:
-        IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
+        IMAGE_TAG: ${{ needs.testJob1.outputs.imagetag }}
       run: |
         echo The image tag is: $IMAGE_TAG
 

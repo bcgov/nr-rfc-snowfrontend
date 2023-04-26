@@ -33,7 +33,7 @@ jobs:
     name: 'test'
     runs-on: ubuntu-22.04
     outputs:
-      imagetag: ${{ steps.calculateImageTag.outputs.}}
+      imagetag: ${{ steps.calculateImageTag.outputs.IMAGE_TAG}}
     steps:
     - name: Calculate Image Tag
       id: calculateImageTag

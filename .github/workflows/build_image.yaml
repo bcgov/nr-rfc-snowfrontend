@@ -133,24 +133,38 @@ jobs:
         echo zone: $zone
         echo "ZONE=$zone" >> $GITHUB_ENV
 
-    - name: 'Deploy'
-      uses: 'deliverybot/helm@v1'
-      env:
-        IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
-        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
-        ZONE: ${{ env.ZONE }}
-      with:
-        release: 'snowpack-frontend'
-        namespace: ${{ vars.OC_NAMESPACE }}
-        chart: 'cicd/snowpack-frontend'
-        token: '${{ github.token }}'
+    - name: Run Helm Chart
+      id: runHelmChart
+      shell: bash
+      run: |
+        cd cicd
+        helm upgrade --install snowpack-frontend snowpack-frontend \
+        --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
+        --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
+        --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \
+        --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \
+        --set image.image_tag: ${{ env.IMAGE_TAG }} \
+        --set image.promote: bcgov/streamlit_frontend:${{ env.IMAGE_TAG }} \
+        --set ${{ env.ZONE }}
+
+    # - name: 'Deploy'
+    #   uses: 'deliverybot/helm@v1'
+    #   env:
+    #     IMAGE_TAG: ${{ needs.CalculateImageTags.outputs.imagetag }}
+    #     KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+    #     ZONE: ${{ env.ZONE }}
+    #   with:
+    #     release: 'snowpack-frontend'
+    #     namespace: ${{ vars.OC_NAMESPACE }}
+    #     chart: 'cicd/snowpack-frontend'
+    #     token: '${{ github.token }}'
         
-        # todo: once working inject the zone / prnumber in
-        values: |
-          ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
-          ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
-          ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
-          ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
-          image.image_tag: ${{ env.IMAGE_TAG }}
-          image.promote: bcgov/streamlit_frontend:${{ env.IMAGE_TAG }}
-          app.zone: ${{ env.ZONE }}
+    #     # todo: once working inject the zone / prnumber in
+    #     values: |
+    #       ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
+    #       ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
+    #       ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
+    #       ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
+    #       image.image_tag: ${{ env.IMAGE_TAG }}
+    #       image.promote: bcgov/streamlit_frontend:${{ env.IMAGE_TAG }}
+    #       app.zone: ${{ env.ZONE }}

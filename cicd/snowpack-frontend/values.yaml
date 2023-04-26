@@ -4,11 +4,11 @@
 
 replicaCount: 1
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+# image:
+#   repository: nginx
+#   pullPolicy: IfNotPresent
+#   # Overrides the image tag whose default is the chart appVersion.
+#   tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -100,6 +100,7 @@ image:
   #promote: bcgov/nr-rfc-grib-copy/datamart_listener:prod
   promote: bcgov/streamlit_frontend:20230425-1552
   image_registry: image-registry.openshift-image-registry.svc:5000
+  # image_stream_namespace: 
 
 config:
   cpu_request: "25m"

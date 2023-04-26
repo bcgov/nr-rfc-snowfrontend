@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-same-namespace-streamlit
+  name: {{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}-np-same-ns
   labels:
     template: quickstart-network-security-policy-streamlit
     app: {{ .Values.app.name }}-{{ .Values.app.zone }}

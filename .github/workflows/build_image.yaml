@@ -147,16 +147,16 @@ jobs:
       id: runHelmChart
       shell: bash
       run: |
-        ls -la
         cd cicd
+        ls -la
         helm upgrade --install snowpack-frontend snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
         --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
         --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \
         --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \
-        --set image.image_tag: ${{ env.IMAGE_TAG }} \
-        --set image.promote: bcgov/streamlit_frontend:${{ env.IMAGE_TAG }} \
-        --set ${{ env.ZONE }}
+        --set image.image_tag=${{ env.IMAGE_TAG }} \
+        --set image.promote=bcgov/streamlit_frontend:${{ env.IMAGE_TAG }} \
+        --set app.zone=${{ env.ZONE }}
 
     # - name: 'Deploy'
     #   uses: 'deliverybot/helm@v1'

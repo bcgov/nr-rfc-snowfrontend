@@ -23,23 +23,18 @@ on:
 
 jobs:
   # This workflow contains a single job called "build"
-  buildjob:
+  # working on testing this: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idoutputs
+  testJob1:
+  # testing passing params between jobs
     defaults:
       run:
         shell: bash
 
-    name: 'Build Streamlit Image'
+    name: 'test'
     runs-on: ubuntu-22.04
-    env:
-      DEBUG_DEPLOY: false
-
+    outputs:
+      imagetag: ${{ steps.calculateImageTag.outputs.}}
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v3
-      id: checkout
-      # with:
-      #   fetch-depth: 0
-
     - name: Calculate Image Tag
       id: calculateImageTag
       shell: bash
@@ -48,58 +43,118 @@ jobs:
         echo datestamp is $DATESTAMP
         echo ::set-output name=DATESTAMP::${DATESTAMP}
         echo event number: ${{ github.event.number }}
-        #echo "IMAGE_TAG=${DATESTAMP}" >> "$DATESTAMP"
+        echo "IMAGE_TAG=${DATESTAMP}" >> "$DATESTAMP"
 
-    - name: Log in to GitHub Docker Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner  }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and Push Client Docker Image
-      uses: docker/build-push-action@v2
-      with:
-        push: true # Will only build if this is not here
-        tags: |
-          ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
-          ghcr.io/${{ github.repository_owner }}/streamlit_frontend:${{ steps.calculateImageTag.outputs.DATESTAMP }}
-  
-  # This workflow contains a single job called "build"
-  DeployJob:
+  testJob2:
+  # testing passing params between jobs
     defaults:
       run:
         shell: bash
-    needs: buildjob
-    name: 'Deploy Streamlit Image'
-    runs-on: ubuntu-22.04
-    environment: dev
-
+    needs: calculateImageTag
     steps:
-    - name: Log in and set context
-      uses: redhat-actions/oc-login@v1
-      with:
-        openshift_server_url: ${{ secrets.OC_SERVER }}
-        openshift_token: ${{ secrets.OC_TOKEN }}
-        # openshift_username: ${{ env.TEST_USER }}
-        # openshift_password: ${{ secrets.OPENSHIFT_PASSWORD }}
-        # certificate_authority_data: ${{ secrets.CA_DATA }}
-        namespace: ${{ secrets.OC_NAMESPACE }}
-
-    - name: 'Deploy'
-      uses: 'deliverybot/helm@v1'
-      with:
-        release: 'snowpack-frontend'
-        namespace: ${{ vars.OC_NAMESPACE }}
-        chart: 'cicd/snowpack-frontend'
-        token: '${{ github.token }}'
-        values: |
-          ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
-          ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
-          ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
-          ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
+    - name: GET Image Tag
+      id: getimagetag
+      shell: bash
       env:
-        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+        IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
+      run: |
+        echo image tag is: $IMAGE_TAG
+
+
+  testJob3:
+    name: 'test'
+    runs-on: ubuntu-22.04
+    needs: [calculateImageTag, testJob2]
+    steps:
+    - name: Get Image Tag
+      id: get image tag
+      shell: bash
+      env:
+        IMAGE_TAG: ${{ needs.testJob1.outputs.output1 }}
+      run: |
+        echo The image tag is: 
+
+
+
+
+  # buildjob:
+  #   defaults:
+  #     run:
+  #       shell: bash
+
+  #   name: 'Build Streamlit Image'
+  #   runs-on: ubuntu-22.04
+  #   env:
+  #     DEBUG_DEPLOY: false
+
+  #   steps:
+  #   # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #   - uses: actions/checkout@v3
+  #     id: checkout
+  #     # with:
+  #     #   fetch-depth: 0
+
+  #   - name: Calculate Image Tag
+  #     id: calculateImageTag
+  #     shell: bash
+  #     run: |
+  #       DATESTAMP=$(date +%Y%m%d-%H%M)
+  #       echo datestamp is $DATESTAMP
+  #       echo ::set-output name=DATESTAMP::${DATESTAMP}
+  #       echo event number: ${{ github.event.number }}
+  #       #echo "IMAGE_TAG=${DATESTAMP}" >> "$DATESTAMP"
+
+  #   - name: Log in to GitHub Docker Registry
+  #     uses: docker/login-action@v1
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.repository_owner  }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+
+  #   - name: Build and Push Client Docker Image
+  #     uses: docker/build-push-action@v2
+  #     with:
+  #       push: true # Will only build if this is not here
+  #       tags: |
+  #         ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
+  #         ghcr.io/${{ github.repository_owner }}/streamlit_frontend:${{ steps.calculateImageTag.outputs.DATESTAMP }}
+  
+  # # This workflow contains a single job called "build"
+  # DeployJob:
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   needs: buildjob
+  #   name: 'Deploy Streamlit Image'
+  #   runs-on: ubuntu-22.04
+  #   environment: dev
+
+  #   steps:
+  #   - name: Log in and set context
+  #     uses: redhat-actions/oc-login@v1
+  #     with:
+  #       openshift_server_url: ${{ secrets.OC_SERVER }}
+  #       openshift_token: ${{ secrets.OC_TOKEN }}
+  #       # openshift_username: ${{ env.TEST_USER }}
+  #       # openshift_password: ${{ secrets.OPENSHIFT_PASSWORD }}
+  #       # certificate_authority_data: ${{ secrets.CA_DATA }}
+  #       namespace: ${{ secrets.OC_NAMESPACE }}
+
+  #   - name: 'Deploy'
+  #     uses: 'deliverybot/helm@v1'
+  #     with:
+  #       release: 'snowpack-frontend'
+  #       namespace: ${{ vars.OC_NAMESPACE }}
+  #       chart: 'cicd/snowpack-frontend'
+  #       token: '${{ github.token }}'
+  #       values: |
+  #         ostore_secrets.bucket: ${{ vars.OBJ_STORE_BUCKET }}
+  #         ostore_secrets.secret: ${{ secrets.OBJ_STORE_SECRET }}
+  #         ostore_secrets.user: ${{ secrets.OBJ_STORE_USER }}
+  #         ostore_secrets.host: ${{ vars.OBJ_STORE_HOST }}
+  #     env:
+  #       KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
 
        
 

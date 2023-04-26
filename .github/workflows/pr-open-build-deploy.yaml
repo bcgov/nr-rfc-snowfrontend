@@ -154,7 +154,7 @@ jobs:
       run: |
         cd cicd
         ls -la
-        helm upgrade --install snowpack-frontend snowpack-frontend \
+        helm upgrade --install snowpack-frontend-${{ env.IMAGE_TAG }} snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
         --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
         --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \

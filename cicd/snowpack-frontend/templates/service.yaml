@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}
+  labels:
+    app: {{ .Values.app.name }}-{{ .Values.app.zone }}
+spec:
+  #type: {{ .Values.service.type }}
+  ports:
+    - port: 8501
+      targetPort: 8501
+      protocol: TCP
+      name: 8501-tcp
+  selector:
+    #deployment: {{ .Values.app.name}}-{{ .Values.app.zone }}-{{ .Values.app.component }}
+    app: {{ .Values.app.name }}-{{ .Values.app.zone }}

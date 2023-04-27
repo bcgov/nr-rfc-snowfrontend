@@ -2,5 +2,5 @@ venv/
 .env
 *.pyc
 venvdash/
-cicd/
 __pycache__
+junk.bash

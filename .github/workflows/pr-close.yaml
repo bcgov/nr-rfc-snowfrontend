@@ -1,0 +1,64 @@
+name: Pull Request Closed
+
+on:
+  pull_request:
+    types:
+      - closed
+
+
+jobs:
+  # Clean up OpenShift when PR closed, no conditions
+  cleanup-openshift:
+    name: Cleanup OpenShift
+    runs-on: ubuntu-22.04
+    environment: dev
+
+    steps:
+    - name: Log in and set context
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ vars.OC_SERVER }}
+        openshift_token: ${{ secrets.OC_TOKEN }}
+        namespace: ${{ vars.OC_NAMESPACE }}
+
+    - name: Calculate Zone
+      id: calculateZone
+      shell: bash
+      run: |
+        event_num=${{ github.event.number }}
+        if [[ -z "${event_num// }" ]]; then
+          zone=pr-testing
+        else
+          zone=pr-$event_num
+        fi
+        echo zone: $zone
+        echo "ZONE=$zone" >> $GITHUB_ENV
+
+    - name: Uninstall helm chart
+      run: |
+        helm uninstall snowpack-frontend-${{ env.ZONE }}
+
+  # If merged into main, then handle any image promotions
+  image-promotions:
+    name: Image Promotions
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-22.04
+    environment: prod
+    permissions:
+      packages: write
+    steps:
+    - name: Upgrade chart
+      id: upgradeHelmChart
+      shell: bash
+      run: |
+        cd cicd
+        zone=prod
+        imagetag=latest
+        helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
+        --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
+        --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
+        --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \
+        --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \
+        --set image.image_tag=$imagetag \
+        --set image.promote=bcgov/streamlit_frontend:$imagetag \
+        --set app.zone=$zone

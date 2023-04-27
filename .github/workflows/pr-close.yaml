@@ -44,18 +44,36 @@ jobs:
   # If merged into main, then handle any image promotions
   image-promotions:
     name: Image Promotions
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    # TODO: uncomment once working
+    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-22.04
     environment: prod
     permissions:
       packages: write
     steps:
 
+    # to help debug this action, logic to get the sha depending
+    # on different trigger types.
+    - name: Calculate Repo Commit Sha
+      id: calcRepoCommitSha
+      shell: bash
+      run: |
+        event_num=${{ github.event.number }}
+        if [[ -z "${event_num// }" ]]; then
+          sha=${{ github.event.push.head.sha }}
+        else
+          sha=${{ github.event.pull_request.head.sha }}
+        fi
+        echo sha: $sha
+        echo "COMMIT_SHA=$sha" >> $GITHUB_ENV
+
+
     - uses: actions/checkout@v3
       id: checkout
       with:
-      #   fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
+        #   fetch-depth: 0
+        # ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ env.COMMIT_SHA }}
       # TODO: fix once complete
       #  ref: ${{ github.event.push.head.sha }}
 

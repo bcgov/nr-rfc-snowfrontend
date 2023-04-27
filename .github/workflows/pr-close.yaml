@@ -4,7 +4,10 @@ on:
   pull_request:
     types:
       - closed
+  push:
+    branches: ['master', 'main', 'feat/5-deploy-frontend']
 
+  workflow_dispatch:
 
 jobs:
   # Clean up OpenShift when PR closed, no conditions
@@ -27,7 +30,7 @@ jobs:
       run: |
         event_num=${{ github.event.number }}
         if [[ -z "${event_num// }" ]]; then
-          zone=pr-testing
+          zone=pr-997
         else
           zone=pr-$event_num
         fi

@@ -100,7 +100,7 @@ image:
   #promote: bcgov/nr-rfc-grib-copy/datamart_listener:prod
   promote: bcgov/streamlit_frontend:20230425-1552
   image_registry: image-registry.openshift-image-registry.svc:5000
-  # image_stream_namespace: 
+  # image_stream_namespace:
 
 config:
   cpu_request: "25m"
@@ -112,7 +112,7 @@ config:
 
 # need to be provided via args
 ostore_secrets:
-  bucket: null
-  secret: null
-  user: null
-  host: null
+  bucket: ''''''
+  secret: ''''''
+  user: ''''''
+  host: ''''''

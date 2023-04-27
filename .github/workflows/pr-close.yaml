@@ -92,14 +92,15 @@ jobs:
         cd cicd
         zone=prod
         imagetag=latest
-
         helm list
-
         helm version
+        echo test multiline command \
+        with some more text
+        echo \
+          Trying Dry run of chart...
 
-        echo Trying Dry run of chart...
-
-        helm upgrade --install snowpack-frontend-$zone snowpack-frontend --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
+        helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
+        --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
         --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
         --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \
         --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \

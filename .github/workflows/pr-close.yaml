@@ -103,6 +103,15 @@ jobs:
         --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \
         --set image.image_tag=$imagetag \
         --set image.promote=bcgov/streamlit_frontend:$imagetag \
+        --set app.zone=$zone --dry-run
+
+        helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
+        --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
+        --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
+        --set ostore_secrets.user=${{ secrets.OBJ_STORE_USER }} \
+        --set ostore_secrets.host=${{ vars.OBJ_STORE_HOST }} \
+        --set image.image_tag=$imagetag \
+        --set image.promote=bcgov/streamlit_frontend:$imagetag \
         --set app.zone=$zone
 
         echo complete

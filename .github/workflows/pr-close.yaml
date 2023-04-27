@@ -4,8 +4,6 @@ on:
   pull_request:
     types:
       - closed
-  push:
-    branches: ['master', 'main', 'feat/5-deploy-frontend']
 
   workflow_dispatch:
 
@@ -72,10 +70,9 @@ jobs:
       id: checkout
       with:
         #   fetch-depth: 0
-        # ref: ${{ github.event.pull_request.head.sha }}
+        #ref: ${{ github.event.pull_request.head.sha }}
         ref: ${{ env.COMMIT_SHA }}
-      # TODO: fix once complete
-      #  ref: ${{ github.event.push.head.sha }}
+        # ref: feat/5-deploy-frontend
 
     - name: Log in and set context
       uses: redhat-actions/oc-login@v1
@@ -91,6 +88,10 @@ jobs:
         cd cicd
         zone=prod
         imagetag=latest
+        echo Running Helm Chart
+
+        # run helm
+        # ---------------------------------
         helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
         --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
@@ -99,3 +100,5 @@ jobs:
         --set image.image_tag=$imagetag \
         --set image.promote=bcgov/streamlit_frontend:$imagetag \
         --set app.zone=$zone
+
+        echo Helm Chart Complete

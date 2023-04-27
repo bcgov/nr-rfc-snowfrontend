@@ -1,9 +1,12 @@
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](<Redirect-URL>)
 
 # Contents:
-    * [Overview](#overview)
-    * [Frontend Research](#frontend-research)
-    * [Run Streamlit App](#using-streamlit)
+
+* [Overview](#overview)
+* [Frontend Research](#frontend-research)
+* [Run Streamlit App Locally](#run-streamlit-app---local)
+* [Run Streamlit App Locally - Docker](#run-streamlit-app---local-with-docker)
+* [Deploy Application using pipeline](#deploy-streamlit-app---using-pipeline)
 
 # Overview
 
@@ -61,12 +64,18 @@ In light of fastest way to PROD looked into the following tech options:
         for component interactivity issue experienced with streamlit.
 
 
-# Using Streamlit
+# Run Streamlit App - Local
 
 Instructions on getting the streamlit application up and running using either
 a virtualenv or Docker.
 
-## Run Local with Virtualenv
+## Set environment variables
+
+* OBJ_STORE_BUCKET - bucket with the snowpack data
+* OBJ_STORE_SECRET - secret to bucket with the snowpack data
+* OBJ_STORE_USER - user id for ...
+* OBJ_STORE_HOST - host for the service... example someservice.obj.store.com
+
 
 ### Create virtualenv and install dependencies
 
@@ -80,9 +89,12 @@ pip install -r requirements.txt
 
 `streamlit run src/main.py`
 
-should produce output that tells you what the url is to the app.
+should produce output that tells you what the url is to the app. You can usually
+test at http://localhost:8105
 
-## Run Local with Docker
+# Run Streamlit App - Local With Docker
+
+## [Set environment Variables - link](#set-environment-variables)
 
 ### Build Image
 
@@ -97,3 +109,15 @@ by the actual application.  Instead just use localhost to view the app.  link
 below also:
 
 [http://localhost:8501](http://localhost:8501)
+
+# Deploy Streamlit App - Using pipeline
+
+A cicd pipeline has been setup for this repo.  A pull request to main will
+trigger and image build and deployment of an ephemeral version of the app.
+
+The pipeline will update the pr with a link to the deployed app url.
+
+Once the url has been tested / verified that it works, and does what its
+suppose to a merge/close of the pr will:
+* Remove the ephemeral environment
+* Deploy the application to a production namespace

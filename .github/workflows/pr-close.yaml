@@ -97,6 +97,8 @@ jobs:
 
         helm version
 
+        echo Trying Dry run of chart...
+
         helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
         --set ostore_secrets.secret=${{ secrets.OBJ_STORE_SECRET }} \
@@ -105,6 +107,8 @@ jobs:
         --set image.image_tag=$imagetag \
         --set image.promote=bcgov/streamlit_frontend:$imagetag \
         --set app.zone=$zone --dry-run
+
+        echo Trying actual implementation run of chart...
 
         helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \
@@ -115,4 +119,4 @@ jobs:
         --set image.promote=bcgov/streamlit_frontend:$imagetag \
         --set app.zone=$zone
 
-        echo complete
+        echo chart is complete

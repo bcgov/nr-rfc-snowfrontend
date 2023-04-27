@@ -47,6 +47,22 @@ jobs:
     permissions:
       packages: write
     steps:
+
+    - uses: actions/checkout@v3
+      id: checkout
+      with:
+      #   fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+      # TODO: fix once complete
+      #  ref: ${{ github.event.push.head.sha }}
+
+    - name: Log in and set context
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ vars.OC_SERVER }}
+        openshift_token: ${{ secrets.OC_TOKEN }}
+        namespace: ${{ vars.OC_NAMESPACE }}
+
     - name: Upgrade chart
       id: upgradeHelmChart
       shell: bash

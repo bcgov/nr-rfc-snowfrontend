@@ -4,8 +4,8 @@ on:
   pull_request:
     types:
       - closed
-  push:
-    branches: ['master', 'main', 'feat/5-deploy-frontend']
+  # push:
+  #   branches: ['master', 'main', 'feat/5-deploy-frontend']
 
   workflow_dispatch:
 
@@ -93,6 +93,8 @@ jobs:
         imagetag=latest
 
         helm list
+
+        helm version
 
         helm upgrade --install snowpack-frontend-$zone snowpack-frontend \
         --set ostore_secrets.bucket=${{ vars.OBJ_STORE_BUCKET }} \

@@ -151,7 +151,7 @@ def show_images(area_type, area_name, sat_list):
 
                     sat_url = SPD.get_url_by_date(
                                 date_str=date,
-                                sat=data_interface.Satellite['modis'],
+                                sat=data_interface.Satellite[sat_str],
                                 area_type=area_type,
                                 area_name=area_name)
                     LOGGER.debug(f"{sat_str} url: - {sat_url}- {type(sat_url)}")

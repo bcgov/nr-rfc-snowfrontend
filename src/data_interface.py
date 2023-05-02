@@ -212,7 +212,7 @@ class SnowPackData():
     def get_dates(self,
                   sat: Satellite=Satellite.modis,
                   area_type:AreaType=AreaType.watersheds,
-                  number_of_dates: int=5
+                  number_of_dates: int=constants.DAYS_BACK
                 ):
         cached_dates = self.cache.get_cache_dates(sat=sat, area_type=area_type)
 

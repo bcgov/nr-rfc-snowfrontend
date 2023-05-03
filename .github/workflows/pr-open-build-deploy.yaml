@@ -25,7 +25,7 @@ on:
 
 jobs:
   # calculate the image tag / used to tag image and then for the
-  # deployment 
+  # deployment
   CalculateImageTags:
     defaults:
       run:
@@ -106,7 +106,7 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/streamlit_frontend:latest
           ghcr.io/${{ github.repository_owner }}/streamlit_frontend:${{ env.IMAGE_TAG }}
-  
+          ghcr.io/${{ github.repository_owner }}/streamlit_frontend:pr-${{ github.event.number }}
   # This workflow contains a single job called "build"
   DeployJob:
     defaults:

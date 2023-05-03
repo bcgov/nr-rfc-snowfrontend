@@ -87,7 +87,7 @@ jobs:
       run: |
         cd cicd
         zone=prod
-        imagetag=latest
+        imagetag=pr-${{ github.event.number }}
         echo Running Helm Chart
 
         # run helm

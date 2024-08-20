@@ -20,4 +20,5 @@ USER appuser
 
 EXPOSE 8501
 
+# debugging options...  "--server.enableWebsocketCompression=false", "--server.enableCORS=false", "--server.enableXsrfProtection=false"
 ENTRYPOINT ["streamlit", "run", "main.py"]

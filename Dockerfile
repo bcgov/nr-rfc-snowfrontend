@@ -1,5 +1,5 @@
 #FROM python:alpine3.17
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 COPY ["src/constants.py", "src/logging.config", "src/data_interface.py", "src/main.py", "requirements.txt", "./"]

@@ -20,4 +20,4 @@ USER appuser
 
 EXPOSE 8501
 
-ENTRYPOINT ["streamlit", "run", "main.py"]
+ENTRYPOINT ["streamlit", "run", "main.py", "--server.enableWebsocketCompression=false", "--server.enableCORS=false"]

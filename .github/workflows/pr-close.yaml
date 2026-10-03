@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Log in and set context
-      uses: redhat-actions/oc-login@v1
+      uses: redhat-actions/oc-login@v2
       with:
         openshift_server_url: ${{ vars.OC_SERVER }}
         openshift_token: ${{ secrets.OC_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
         echo "COMMIT_SHA=$sha" >> $GITHUB_ENV
 
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       id: checkout
       with:
         #   fetch-depth: 0
@@ -75,7 +75,7 @@ jobs:
         # ref: feat/5-deploy-frontend
 
     - name: Log in and set context
-      uses: redhat-actions/oc-login@v1
+      uses: redhat-actions/oc-login@v2
       with:
         openshift_server_url: ${{ vars.OC_SERVER }}
         openshift_token: ${{ secrets.OC_TOKEN }}

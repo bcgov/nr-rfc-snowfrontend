@@ -11,12 +11,12 @@ jobs:
   # Clean up OpenShift when PR closed, no conditions
   cleanup-openshift:
     name: Cleanup OpenShift
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     environment: dev
 
     steps:
     - name: Log in and set context
-      uses: redhat-actions/oc-login@v1
+      uses: redhat-actions/oc-login@v2
       with:
         openshift_server_url: ${{ vars.OC_SERVER }}
         openshift_token: ${{ secrets.OC_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
     name: Image Promotions
     # TODO: uncomment once working
     #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     environment: prod
     permissions:
       packages: write
@@ -66,7 +66,7 @@ jobs:
         echo "COMMIT_SHA=$sha" >> $GITHUB_ENV
 
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       id: checkout
       with:
         #   fetch-depth: 0
@@ -75,7 +75,7 @@ jobs:
         # ref: feat/5-deploy-frontend
 
     - name: Log in and set context
-      uses: redhat-actions/oc-login@v1
+      uses: redhat-actions/oc-login@v2
       with:
         openshift_server_url: ${{ vars.OC_SERVER }}
         openshift_token: ${{ secrets.OC_TOKEN }}
